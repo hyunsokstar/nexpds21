@@ -6,14 +6,23 @@ import { cn } from '@/lib/utils'
 import { Phone, Users, ListTree } from 'lucide-react'
 import TreeItem from './components/TreeItem'
 import { campaignConfig, groupConfig, userConfig } from './config/sidebar-menu-items'
+import { Resizable } from 're-resizable'
 
 interface SidebarProps {
   className?: string
+  defaultWidth?: number
+  minWidth?: number
+  maxWidth?: number
 }
 
 type SidebarTab = 'campaign' | 'user' | 'group';
 
-const Sidebar = ({ className }: SidebarProps) => {
+const Sidebar = ({ 
+  className, 
+  defaultWidth = 256, 
+  minWidth = 220, 
+  maxWidth = 420 
+}: SidebarProps) => {
   const pathname = usePathname()
   const [activeTab, setActiveTab] = useState<SidebarTab>('campaign')
   
@@ -144,67 +153,103 @@ const Sidebar = ({ className }: SidebarProps) => {
 
   const { config, title, icon } = getTabConfig();
   
+  // 리사이즈 핸들 스타일
+  const resizeHandleStyles = {
+    right: {
+      position: 'absolute' as const, // Type assertion to const
+      top: 0,
+      right: 0,
+      width: '3px',
+      height: '100%',
+      cursor: 'col-resize',
+      zIndex: 1
+    }
+  };
+  
   return (
-    <div className={cn("w-64 bg-white border-r flex flex-col h-full", className)}>
-      {/* 사이드바 헤더 - 색상 및 높이 수정 */}
-      <div className="bg-gray-100 text-gray-700 px-3 py-2 flex items-center border-b">
-        {icon}
-        <span className="text-sm font-medium ml-2">{title}</span>
-      </div>
-      
-      {/* 트리 메뉴 영역 - 스크롤 가능 */}
-      <div className="flex-1 overflow-auto px-2 py-2">
-        <nav className="space-y-1">
-          {config.map((item) => (
-            <TreeItem 
-              key={item.id}
-              item={item}
-              currentPath={pathname}
-              isExpanded={!!expandedItems[item.id]}
-              onToggleExpand={toggleItem}
-              level={0}
-              expandedItems={expandedItems}
-            />
-          ))}
-        </nav>
-      </div>
-      
-      {/* 하단 세로 탭 */}
-      <div className="border-t">
-        <div className="flex flex-col divide-y">
-          <button
-            className={cn(
-              "py-2 text-xs flex items-center justify-center",
-              activeTab === 'campaign' ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-50"
-            )}
-            onClick={() => setActiveTab('campaign')}
-          >
-            <Phone size={14} className="mr-1.5" />
-            <span>캠페인</span>
-          </button>
-          <button
-            className={cn(
-              "py-2 text-xs flex items-center justify-center",
-              activeTab === 'user' ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-50"
-            )}
-            onClick={() => setActiveTab('user')}
-          >
-            <Users size={14} className="mr-1.5" />
-            <span>상담원</span>
-          </button>
-          <button
-            className={cn(
-              "py-2 text-xs flex items-center justify-center",
-              activeTab === 'group' ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-50"
-            )}
-            onClick={() => setActiveTab('group')}
-          >
-            <ListTree size={14} className="mr-1.5" />
-            <span>그룹</span>
-          </button>
+    <Resizable
+      defaultSize={{
+        width: defaultWidth,
+        height: '100%',
+      }}
+      minWidth={minWidth}
+      maxWidth={maxWidth}
+      enable={{
+        top: false,
+        right: true,
+        bottom: false,
+        left: false,
+        topRight: false,
+        bottomRight: false,
+        bottomLeft: false,
+        topLeft: false
+      }}
+      handleStyles={resizeHandleStyles}
+      handleClasses={{
+        right: 'hover:bg-gray-300 active:bg-gray-400 transition-colors'
+      }}
+    >
+      <div className={cn("bg-white border-r flex flex-col h-full w-full", className)}>
+        {/* 사이드바 헤더 - 높이 증가 */}
+        <div className="bg-gray-100 text-gray-700 px-3 py-3 flex items-center border-b">
+          {icon}
+          <span className="text-sm font-medium ml-2">{title}</span>
+        </div>
+        
+        {/* 트리 메뉴 영역 - 스크롤 가능 */}
+        <div className="flex-1 overflow-auto px-2 py-2">
+          <nav className="space-y-1">
+            {config.map((item) => (
+              <TreeItem 
+                key={item.id}
+                item={item}
+                currentPath={pathname}
+                isExpanded={!!expandedItems[item.id]}
+                onToggleExpand={toggleItem}
+                level={0}
+                expandedItems={expandedItems}
+              />
+            ))}
+          </nav>
+        </div>
+        
+        {/* 하단 세로 탭 */}
+        <div className="border-t">
+          <div className="flex flex-col divide-y">
+            <button
+              className={cn(
+                "py-2 text-xs flex items-center justify-center",
+                activeTab === 'campaign' ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-50"
+              )}
+              onClick={() => setActiveTab('campaign')}
+            >
+              <Phone size={14} className="mr-1.5" />
+              <span>캠페인</span>
+            </button>
+            <button
+              className={cn(
+                "py-2 text-xs flex items-center justify-center",
+                activeTab === 'user' ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-50"
+              )}
+              onClick={() => setActiveTab('user')}
+            >
+              <Users size={14} className="mr-1.5" />
+              <span>상담원</span>
+            </button>
+            <button
+              className={cn(
+                "py-2 text-xs flex items-center justify-center",
+                activeTab === 'group' ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-50"
+              )}
+              onClick={() => setActiveTab('group')}
+            >
+              <ListTree size={14} className="mr-1.5" />
+              <span>그룹</span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </Resizable>
   )
 }
 

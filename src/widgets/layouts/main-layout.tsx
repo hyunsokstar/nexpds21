@@ -24,17 +24,22 @@ export default function MainLayout({
 
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* 탭 컨테이너 */}
-          <TabContainer />
-          
-          {/* 탭이 없을 때 기본 콘텐츠 표시 */}
-          {!hasTabs && (
-            <main className="flex-1 overflow-auto p-4">
-              {children}
-            </main>
-          )}
-          
-          {/* Footer */}
-          <Footer />
+          <div className="flex-1 overflow-auto flex flex-col">
+            <TabContainer />
+            
+            {/* 탭이 없을 때 기본 콘텐츠 표시 */}
+            {!hasTabs && (
+              <main className="flex-1 overflow-auto p-4">
+                {children}
+              </main>
+            )}
+            
+            {/* 여백을 채우는 div */}
+            <div className="flex-grow"></div>
+            
+            {/* Footer */}
+            <Footer />
+          </div>
         </div>
       </div>
     </div>

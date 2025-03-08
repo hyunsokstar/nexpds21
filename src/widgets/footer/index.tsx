@@ -15,7 +15,7 @@ const Footer = () => {
   ]
 
   return (
-    <div className="border-t bg-white">
+    <div className="border-t bg-white shadow-md w-full">
       {/* 푸터 헤더 영역 */}
       <div className="flex h-8 items-center justify-between px-2 text-xs text-gray-500 bg-gray-50">
         <div className="flex items-center">

@@ -281,7 +281,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useTabActions, useTabSelectors } from '@/features/tabs/store/useTabStore';
 import VisualTabForTabBar from '../component/VisualTabForTabBar';
-import { ChevronLeft, ChevronRight, X, Columns2, Columns3, Columns4 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Columns2, Columns3, Columns4, MinusSquare } from 'lucide-react';
 
 interface TabBarProps {
     panelId?: string;
@@ -289,12 +289,15 @@ interface TabBarProps {
 
 const TabBar = ({ panelId = 'main' }: TabBarProps) => {
     const { getPanelTabs, getActivePanelTab, isSplitView, getPanels } = useTabSelectors();
-    const { activateTabInPanel, closeTab, splitView, unsplitView, moveTabToPanel, reorderTabsInPanel } = useTabActions();
+    const { activateTabInPanel, closeTab, splitView, unsplitView, moveTabToPanel, reorderTabsInPanel, closePanel } = useTabActions();
 
     const tabs = getPanelTabs(panelId);
     const activeTab = getActivePanelTab(panelId);
     const isSplit = isSplitView();
     const panels = getPanels();
+    
+    // 현재 패널이 마지막 패널인지 확인
+    const isLastPanel = isSplit && panels.length > 0 && panels[panels.length - 1].id === panelId;
 
     // 스크롤 관련 상태 및 참조
     const tabsContainerRef = useRef<HTMLDivElement>(null);
@@ -541,6 +544,13 @@ const TabBar = ({ panelId = 'main' }: TabBarProps) => {
             console.error('탭 드롭 처리 중 오류:', error);
         }
     };
+    
+    // 패널 닫기 함수
+    const handleClosePanel = () => {
+        if (isSplit && panels.length > 1) {
+            closePanel(panelId);
+        }
+    };
 
     // 탭이 없을 때는 안내 메시지 표시
     if (tabs.length === 0) {
@@ -618,44 +628,56 @@ const TabBar = ({ panelId = 'main' }: TabBarProps) => {
                 </button>
             )}
 
-            {/* 분할 버튼 (메인 패널 또는 첫 번째 패널에만 표시) */}
-            {(panelId === 'main' || panelId === 'panel-0') && (
-                <div className="flex items-center border-l px-1">
-                    {isSplit ? (
+            {/* 분할 및 패널 관리 버튼 */}
+            <div className="flex items-center border-l px-1">
+                {/* 패널 닫기 버튼 (분할 모드에서만 표시) */}
+                {isSplit && panels.length > 1 && (
+                    <button
+                        className="p-1.5 mx-0.5 bg-gray-100 hover:bg-gray-200 rounded text-gray-600 transition-all"
+                        onClick={handleClosePanel}
+                        title="이 패널 닫기"
+                    >
+                        <MinusSquare size={16} />
+                    </button>
+                )}
+                
+                {/* 분할 제어 버튼 - 분할 모드에선 마지막 패널에만 전체 해제 버튼 표시 */}
+                {isSplit ? (
+                    isLastPanel && (
                         <button
                             className="p-1.5 mx-0.5 bg-gray-100 hover:bg-gray-200 rounded text-gray-600 transition-all"
                             onClick={unsplitView}
-                            title="분할 해제"
+                            title="분할 모두 해제"
                         >
                             <X size={16} />
                         </button>
-                    ) : (
-                        <>
-                            <button
-                                className="p-1.5 mx-0.5 bg-gray-100 hover:bg-gray-200 rounded text-gray-600 transition-all"
-                                onClick={() => splitView(2)}
-                                title="2열 분할"
-                            >
-                                <Columns2 size={16} />
-                            </button>
-                            <button
-                                className="p-1.5 mx-0.5 bg-gray-100 hover:bg-gray-200 rounded text-gray-600 transition-all"
-                                onClick={() => splitView(3)}
-                                title="3열 분할"
-                            >
-                                <Columns3 size={16} />
-                            </button>
-                            <button
-                                className="p-1.5 mx-0.5 bg-gray-100 hover:bg-gray-200 rounded text-gray-600 transition-all"
-                                onClick={() => splitView(4)}
-                                title="4열 분할"
-                            >
-                                <Columns4 size={16} />
-                            </button>
-                        </>
-                    )}
-                </div>
-            )}
+                    )
+                ) : (
+                    <>
+                        <button
+                            className="p-1.5 mx-0.5 bg-gray-100 hover:bg-gray-200 rounded text-gray-600 transition-all"
+                            onClick={() => splitView(2)}
+                            title="2열 분할"
+                        >
+                            <Columns2 size={16} />
+                        </button>
+                        <button
+                            className="p-1.5 mx-0.5 bg-gray-100 hover:bg-gray-200 rounded text-gray-600 transition-all"
+                            onClick={() => splitView(3)}
+                            title="3열 분할"
+                        >
+                            <Columns3 size={16} />
+                        </button>
+                        <button
+                            className="p-1.5 mx-0.5 bg-gray-100 hover:bg-gray-200 rounded text-gray-600 transition-all"
+                            onClick={() => splitView(4)}
+                            title="4열 분할"
+                        >
+                            <Columns4 size={16} />
+                        </button>
+                    </>
+                )}
+            </div>
         </div>
     );
 };

@@ -1,4 +1,3 @@
-// src\features\tabs\store\useTabStore.ts
 "use client";
 
 import { create } from "zustand";
@@ -39,6 +38,7 @@ interface TabState {
   // 분할 관련 액션
   splitIntoColumns: (count: number) => void;
   removeSplit: () => void;
+  closePanel: (panelId: string) => void; // 개별 패널 닫기 함수
   moveTab: (tabId: string, targetPanelId: string) => void;
   activateTabInPanel: (tabId: string, panelId: string) => void;
   reorderTabsInPanel: (
@@ -341,15 +341,14 @@ export const useTabStore = create<TabState>((set, get) => ({
   removeSplit: () => {
     set((state) => {
       const { tabs, activeTabId } = state;
-      // 분할 해제 시, panel[0]에 원래 순서대로 모은다.
-      // 기존 panel 배열 중 남아있는 탭들의 순서를 유지하여 합쳐도 됨.
-      // 여기서는 간단히, 현재 활성 중인 탭들의 id 순서대로 모으도록 처리
-
-      // 1) 전체 panel 의 탭들을 전부 하나로 합침
+      // 분할 해제 시, 모든 패널의 탭을 유지하면서 하나로 합침
+      
+      // 모든 패널의 탭 ID를 순서대로 수집 (기존 패널 순서 유지)
       const mergedTabIds: string[] = state.panels.reduce<string[]>(
         (acc, p) => [...acc, ...p.tabs],
         []
       );
+      
       // 중복 제거 (혹시 모를 상황 대비)
       const uniqueTabIds = Array.from(new Set(mergedTabIds));
 
@@ -362,6 +361,64 @@ export const useTabStore = create<TabState>((set, get) => ({
             activeTabId,
           },
         ],
+      };
+    });
+  },
+  
+  // 개별 패널 닫기 함수 - 수정된 버전
+  closePanel: (panelId: string) => {
+    set((state) => {
+      const { panels } = state;
+      
+      // 닫으려는 패널 인덱스 찾기
+      const panelIndex = panels.findIndex(panel => panel.id === panelId);
+      if (panelIndex === -1) return state;
+      
+      // 패널이 하나만 남았다면 분할 모드 해제하지 않고 유지
+      if (panels.length <= 1) {
+        return state;
+      }
+      
+      // 닫으려는 패널의 탭들
+      const closingPanelTabs = panels[panelIndex].tabs;
+      
+      // 새로운 패널 배열 준비 (닫히는 패널 제외)
+      const updatedPanels = panels.filter((_, idx) => idx !== panelIndex);
+      
+      // 닫히는 패널에 있던 탭들을 첫 번째 패널로 이동
+      if (closingPanelTabs.length > 0) {
+        // 첫 번째 패널을 대상 패널로 사용
+        const targetPanel = updatedPanels[0];
+        
+        // 첫 번째 패널에 닫히는 패널의 탭 추가
+        const updatedTargetPanel = {
+          ...targetPanel,
+          tabs: [...targetPanel.tabs, ...closingPanelTabs],
+          // 활성 탭이 없으면 닫히는 패널의 첫 번째 탭을 활성화
+          activeTabId: targetPanel.activeTabId || closingPanelTabs[0] || null,
+        };
+        
+        // 패널 배열 업데이트
+        updatedPanels[0] = updatedTargetPanel;
+        
+        // 전역 활성 탭 업데이트
+        const activeTabId = state.activeTabId;
+        const isActiveTabInClosingPanel = closingPanelTabs.includes(activeTabId || '');
+        const newActiveTabId = isActiveTabInClosingPanel 
+          ? updatedTargetPanel.activeTabId 
+          : activeTabId;
+        
+        return {
+          panels: updatedPanels,
+          isSplit: updatedPanels.length > 1, // 패널이 2개 이상이면 분할 모드 유지
+          activeTabId: newActiveTabId,
+        };
+      }
+      
+      // 닫으려는 패널에 탭이 없는 경우 단순히 패널 제거
+      return {
+        panels: updatedPanels,
+        isSplit: updatedPanels.length > 1, // 패널이 2개 이상이면 분할 모드 유지
       };
     });
   },
@@ -498,6 +555,7 @@ export const useTabActions = () => {
     setActiveTab,
     splitIntoColumns,
     removeSplit,
+    closePanel, 
     moveTab,
     activateTabInPanel,
     reorderTabsInPanel,
@@ -524,6 +582,10 @@ export const useTabActions = () => {
     unsplitView: () => {
       removeSplit();
     },
+    
+    closePanel: (panelId: string) => {
+      closePanel(panelId);
+    },
 
     moveTabToPanel: (tabId: string, panelId: string) => {
       moveTab(tabId, panelId);
@@ -543,7 +605,6 @@ export const useTabActions = () => {
   };
 };
 
-// src/features/tabs/store/useTabStore.ts
 export const useTabSelectors = () => {
   const { tabs, activeTabId, isSplit, panels } = useTabStore();
 
@@ -568,4 +629,3 @@ export const useTabSelectors = () => {
     },
   };
 };
-

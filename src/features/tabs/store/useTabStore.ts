@@ -366,62 +366,75 @@ export const useTabStore = create<TabState>((set, get) => ({
   },
   
   // 개별 패널 닫기 함수 - 수정된 버전
-  closePanel: (panelId: string) => {
+  closePanel: (closingPanelId: string) => {
     set((state) => {
       const { panels } = state;
-      
-      // 닫으려는 패널 인덱스 찾기
-      const panelIndex = panels.findIndex(panel => panel.id === panelId);
-      if (panelIndex === -1) return state;
-      
-      // 패널이 하나만 남았다면 분할 모드 해제하지 않고 유지
+  
+      // 닫으려는 패널 찾기
+      const panelIndex = panels.findIndex((p) => p.id === closingPanelId);
+      if (panelIndex === -1) return state; // 해당 패널 없음
+  
+      // 패널이 하나뿐이면? (원하면 그냥 무시하거나, 탭 전부 제거 후 남은 패널만 유지)
       if (panels.length <= 1) {
-        return state;
-      }
-      
-      // 닫으려는 패널의 탭들
-      const closingPanelTabs = panels[panelIndex].tabs;
-      
-      // 새로운 패널 배열 준비 (닫히는 패널 제외)
-      const updatedPanels = panels.filter((_, idx) => idx !== panelIndex);
-      
-      // 닫히는 패널에 있던 탭들을 첫 번째 패널로 이동
-      if (closingPanelTabs.length > 0) {
-        // 첫 번째 패널을 대상 패널로 사용
-        const targetPanel = updatedPanels[0];
-        
-        // 첫 번째 패널에 닫히는 패널의 탭 추가
-        const updatedTargetPanel = {
-          ...targetPanel,
-          tabs: [...targetPanel.tabs, ...closingPanelTabs],
-          // 활성 탭이 없으면 닫히는 패널의 첫 번째 탭을 활성화
-          activeTabId: targetPanel.activeTabId || closingPanelTabs[0] || null,
-        };
-        
-        // 패널 배열 업데이트
-        updatedPanels[0] = updatedTargetPanel;
-        
-        // 전역 활성 탭 업데이트
-        const activeTabId = state.activeTabId;
-        const isActiveTabInClosingPanel = closingPanelTabs.includes(activeTabId || '');
-        const newActiveTabId = isActiveTabInClosingPanel 
-          ? updatedTargetPanel.activeTabId 
-          : activeTabId;
-        
+        // 모든 탭 삭제하고 패널도 없애버리기
+        // 혹은 그냥 아무것도 안 함 (디자인에 따라)
+        const closingTabs = panels[panelIndex].tabs;
+        let newTabs = state.tabs.filter(tab => !closingTabs.includes(tab.id));
         return {
-          panels: updatedPanels,
-          isSplit: updatedPanels.length > 1, // 패널이 2개 이상이면 분할 모드 유지
-          activeTabId: newActiveTabId,
+          tabs: newTabs,
+          panels: [{ id: "main", tabs: [], activeTabId: null }],
+          activeTabId: null,
+          isSplit: false
         };
       }
-      
-      // 닫으려는 패널에 탭이 없는 경우 단순히 패널 제거
+  
+      // 닫으려는 패널 정보
+      const closingPanel = panels[panelIndex];
+      const closingTabs = closingPanel.tabs;
+  
+      // 1) 전역 탭 목록에서 해당 탭들 제거
+      let newTabs = state.tabs.filter(tab => !closingTabs.includes(tab.id));
+  
+      // 2) 패널 목록에서 제거
+      let updatedPanels = [...panels];
+      updatedPanels.splice(panelIndex, 1);
+  
+      // 3) 분할 모드 여부 갱신
+      const isSplit = updatedPanels.length > 1;
+  
+      // 활성 탭(activeTabId) 처리:
+      // - 닫은 패널의 탭 중 하나가 활성 상태였으면 null 또는 다른 탭으로 변경
+      let newActiveTabId = state.activeTabId;
+      if (closingTabs.includes(newActiveTabId || "")) {
+        newActiveTabId = null; // 혹은 남아 있는 다른 패널 탭 중 하나를 활성화
+        for (const p of updatedPanels) {
+          if (p.activeTabId) {
+            newActiveTabId = p.activeTabId;
+            break;
+          }
+        }
+      }
+  
+      // 4) 마지막으로 패널이 1개만 남았다면 “main”으로 바꾼다거나, 
+      //    아니면 그대로 panelId 유지(동적 렌더링이면 필요 없음)
+      if (!isSplit) {
+        // 1개만 남으면 굳이 "main"으로 교체해도 되고, 아니면 유지
+        updatedPanels[0] = {
+          ...updatedPanels[0],
+          id: "main",
+        };
+      }
+  
       return {
+        tabs: newTabs,
         panels: updatedPanels,
-        isSplit: updatedPanels.length > 1, // 패널이 2개 이상이면 분할 모드 유지
+        activeTabId: newActiveTabId,
+        isSplit
       };
     });
   },
+  
+  
 
   moveTab: (tabId: string, targetPanelId: string) => {
     set((state) => {

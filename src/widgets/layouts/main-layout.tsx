@@ -25,7 +25,9 @@ export default function MainLayout({
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* 탭 컨테이너 */}
           <div className="flex-1 overflow-auto flex flex-col">
-            <TabContainer />
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <TabContainer />
+            </div>
             
             {/* 탭이 없을 때 기본 콘텐츠 표시 */}
             {!hasTabs && (
@@ -33,9 +35,6 @@ export default function MainLayout({
                 {children}
               </main>
             )}
-            
-            {/* 여백을 채우는 div */}
-            <div className="flex-grow"></div>
             
             {/* Footer */}
             <Footer />

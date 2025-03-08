@@ -19,7 +19,7 @@ const VisualTabForTabBar = ({
   name,
   icon: Icon,
   isActive,
-  closable,
+  closable = true,
   onClick,
   onClose
 }: VisualTabProps) => {

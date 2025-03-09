@@ -2,6 +2,8 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronRight, ChevronDown, AlertTriangleIcon, CircleIcon, FolderIcon, BuildingIcon } from 'lucide-react';
 import { SidebarItem, ItemType } from '../config/sidebar-menu-items';
+import { useTabActions } from '@/features/tabs/store/useTabStore';
+import CampaignManage from '@/shared/panels/CampaignManage';
 
 interface TreeItemProps {
   item: SidebarItem;
@@ -50,6 +52,7 @@ const TreeItem: React.FC<TreeItemProps> = ({
   const isSelected = selectedItemId === item.id;
   const hasChildren = item.children && item.children.length > 0;
   const indent = level * 16;
+  const { openTab } = useTabActions();
 
   // 아이템 클릭 시 처리 함수
   const handleItemClick = () => {
@@ -62,6 +65,27 @@ const TreeItem: React.FC<TreeItemProps> = ({
     }
   };
 
+  // 더블 클릭 처리 함수
+  const handleDoubleClick = () => {
+    // 캠페인 타입의 아이템만 처리
+    if (item.type === 'campaign') {
+      // 탭 생성 - 기존 CampaignManage 컴포넌트에 캠페인 데이터 전달
+      openTab({
+        id: `campaign-${item.id}`,
+        name: item.label,
+        icon: item.status === 'warning' ? AlertTriangleIcon : CircleIcon,
+        // CampaignManage 컴포넌트에 필요한 props 전달
+        component: () => <CampaignManage
+          campaignId={item.id}
+          campaignName={item.label}
+          campaignStatus={item.status || 'inactive'}
+          campaignPath={item.href || ''}
+        />,
+        closable: true
+      });
+    }
+  };
+
   return (
     <div>
       <div
@@ -70,6 +94,7 @@ const TreeItem: React.FC<TreeItemProps> = ({
           isSelected && "bg-blue-50 text-blue-600 font-medium"
         )}
         onClick={handleItemClick}
+        onDoubleClick={handleDoubleClick}
         style={{ paddingLeft: `${indent}px` }}
       >
         {/* 폴더 아이콘 - 열고 닫기 상태에 따라 변경 */}

@@ -1,12 +1,12 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Phone, Users, ListTree } from 'lucide-react'
-import TreeItem from './components/TreeItem'
 import { campaignConfig, groupConfig, userConfig } from './config/sidebar-menu-items'
 import { Resizable } from 're-resizable'
+import TreeMenusForSideBar from './components/TreeMenusForSideBar'
 
 interface SidebarProps {
   className?: string
@@ -68,65 +68,6 @@ const Sidebar = ({
   };
 
   const { expandedItems, setExpandedItems } = getExpandedItemsState();
-
-  // 아이템 토글 함수 - 아이템 ID를 매개변수로 받음
-  const toggleItem = (id: string) => {
-    setExpandedItems(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
-  };
-
-  // 현재 경로에 해당하는 항목 자동 확장 - 탭 변경 시 실행
-  useEffect(() => {
-    // 재귀적으로 경로에 해당하는 모든 상위 항목 ID 찾기
-    const findParentItemIds = (
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      items: any[],
-      targetPath: string,
-      parentIds: string[] = []
-    ): string[] => {
-      for (const item of items) {
-        if (item.href === targetPath) {
-          return parentIds;
-        }
-
-        if (item.children && item.children.length > 0) {
-          const foundIds = findParentItemIds(
-            item.children,
-            targetPath,
-            [...parentIds, item.id]
-          );
-
-          if (foundIds.length > 0) {
-            return foundIds;
-          }
-        }
-      }
-
-      return [];
-    };
-
-    // 현재 탭의 설정 가져오기
-    const currentConfig =
-      activeTab === 'campaign' ? campaignConfig :
-        activeTab === 'user' ? userConfig :
-          groupConfig;
-
-    // 현재 경로에 해당하는 상위 항목 ID 찾기
-    const parentIds = findParentItemIds(currentConfig, pathname);
-
-    // 찾은 ID들을 확장 상태에 추가
-    if (parentIds.length > 0) {
-      const newExpandedItems = { ...expandedItems };
-
-      parentIds.forEach(id => {
-        newExpandedItems[id] = true;
-      });
-
-      setExpandedItems(newExpandedItems);
-    }
-  }, [activeTab, pathname]);
 
   // 활성 탭에 따른 설정 및 제목 결정
   const getTabConfig = () => {
@@ -199,19 +140,12 @@ const Sidebar = ({
 
         {/* 트리 메뉴 영역 - 스크롤 가능 */}
         <div className="flex-1 overflow-auto px-2 py-2">
-          <nav className="space-y-1">
-            {config.map((item) => (
-              <TreeItem
-                key={item.id}
-                item={item}
-                currentPath={pathname}
-                isExpanded={!!expandedItems[item.id]}
-                onToggleExpand={toggleItem}
-                level={0}
-                expandedItems={expandedItems}
-              />
-            ))}
-          </nav>
+          <TreeMenusForSideBar
+            config={config}
+            currentPath={pathname}
+            expandedItems={expandedItems}
+            setExpandedItems={setExpandedItems}
+          />
         </div>
 
         {/* 하단 세로 탭 */}

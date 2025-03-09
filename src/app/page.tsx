@@ -6,11 +6,11 @@ import { useRouter } from 'next/navigation'
 
 export default function Home() {
   const router = useRouter()
-  
+
   useEffect(() => {
     // 로그인 상태 확인
-    const isLoggedIn = localStorage.getItem('token')
-    
+    // const isLoggedIn = localStorage.getItem('token')
+
     if (true) {
       // 로그인 되어 있으면 메인 페이지로
       router.push('/main')

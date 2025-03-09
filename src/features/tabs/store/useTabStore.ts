@@ -4,7 +4,7 @@ import { create } from "zustand";
 import { LucideIcon } from "lucide-react";
 
 // 컴포넌트 타입
-type ComponentType = React.ComponentType<any>;
+type ComponentType = React.ComponentType<unknown>;
 
 export interface Tab {
   id: string;
@@ -76,10 +76,10 @@ export const useTabStore = create<TabState>((set, get) => ({
           const updatedPanels = panels.map((panel) =>
             panel.id === firstPanelId
               ? {
-                  ...panel,
-                  tabs: [...panel.tabs, tab.id],
-                  activeTabId: tab.id,
-                }
+                ...panel,
+                tabs: [...panel.tabs, tab.id],
+                activeTabId: tab.id,
+              }
               : panel
           );
 
@@ -106,6 +106,7 @@ export const useTabStore = create<TabState>((set, get) => ({
       });
     } else {
       // 이미 존재하는 탭이면 활성화
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       set((state) => {
         if (isSplit) {
           // 탭이 속한 패널 찾기
@@ -296,7 +297,7 @@ export const useTabStore = create<TabState>((set, get) => ({
       const newPanels: SplitPanel[] = [];
 
       // 탭을 균등하게 분배하기 위해 ID 리스트 만들기
-      const tabIds = [...state.panels[0].tabs]; 
+      const tabIds = [...state.panels[0].tabs];
       // (분할하기 전에도 panels[0].tabs 에 탭 순서가 들어있다고 가정)
 
       // count만큼 패널을 먼저 생성
@@ -328,27 +329,28 @@ export const useTabStore = create<TabState>((set, get) => ({
           count > 1
             ? newPanels
             : [
-                {
-                  id: "main",
-                  tabs: tabIds,
-                  activeTabId,
-                },
-              ],
+              {
+                id: "main",
+                tabs: tabIds,
+                activeTabId,
+              },
+            ],
       };
     });
   },
 
   removeSplit: () => {
     set((state) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { tabs, activeTabId } = state;
       // 분할 해제 시, 모든 패널의 탭을 유지하면서 하나로 합침
-      
+
       // 모든 패널의 탭 ID를 순서대로 수집 (기존 패널 순서 유지)
       const mergedTabIds: string[] = state.panels.reduce<string[]>(
         (acc, p) => [...acc, ...p.tabs],
         []
       );
-      
+
       // 중복 제거 (혹시 모를 상황 대비)
       const uniqueTabIds = Array.from(new Set(mergedTabIds));
 
@@ -364,22 +366,22 @@ export const useTabStore = create<TabState>((set, get) => ({
       };
     });
   },
-  
+
   // 개별 패널 닫기 함수 - 수정된 버전
   closePanel: (closingPanelId: string) => {
     set((state) => {
       const { panels } = state;
-  
+
       // 닫으려는 패널 찾기
       const panelIndex = panels.findIndex((p) => p.id === closingPanelId);
       if (panelIndex === -1) return state; // 해당 패널 없음
-  
+
       // 패널이 하나뿐이면? (원하면 그냥 무시하거나, 탭 전부 제거 후 남은 패널만 유지)
       if (panels.length <= 1) {
         // 모든 탭 삭제하고 패널도 없애버리기
         // 혹은 그냥 아무것도 안 함 (디자인에 따라)
         const closingTabs = panels[panelIndex].tabs;
-        let newTabs = state.tabs.filter(tab => !closingTabs.includes(tab.id));
+        const newTabs = state.tabs.filter(tab => !closingTabs.includes(tab.id));
         return {
           tabs: newTabs,
           panels: [{ id: "main", tabs: [], activeTabId: null }],
@@ -387,21 +389,21 @@ export const useTabStore = create<TabState>((set, get) => ({
           isSplit: false
         };
       }
-  
+
       // 닫으려는 패널 정보
       const closingPanel = panels[panelIndex];
       const closingTabs = closingPanel.tabs;
-  
+
       // 1) 전역 탭 목록에서 해당 탭들 제거
-      let newTabs = state.tabs.filter(tab => !closingTabs.includes(tab.id));
-  
+      const newTabs = state.tabs.filter(tab => !closingTabs.includes(tab.id));
+
       // 2) 패널 목록에서 제거
-      let updatedPanels = [...panels];
+      const updatedPanels = [...panels];
       updatedPanels.splice(panelIndex, 1);
-  
+
       // 3) 분할 모드 여부 갱신
       const isSplit = updatedPanels.length > 1;
-  
+
       // 활성 탭(activeTabId) 처리:
       // - 닫은 패널의 탭 중 하나가 활성 상태였으면 null 또는 다른 탭으로 변경
       let newActiveTabId = state.activeTabId;
@@ -414,7 +416,7 @@ export const useTabStore = create<TabState>((set, get) => ({
           }
         }
       }
-  
+
       // 4) 마지막으로 패널이 1개만 남았다면 “main”으로 바꾼다거나, 
       //    아니면 그대로 panelId 유지(동적 렌더링이면 필요 없음)
       if (!isSplit) {
@@ -424,7 +426,7 @@ export const useTabStore = create<TabState>((set, get) => ({
           id: "main",
         };
       }
-  
+
       return {
         tabs: newTabs,
         panels: updatedPanels,
@@ -433,8 +435,8 @@ export const useTabStore = create<TabState>((set, get) => ({
       };
     });
   },
-  
-  
+
+
 
   moveTab: (tabId: string, targetPanelId: string) => {
     set((state) => {
@@ -568,7 +570,7 @@ export const useTabActions = () => {
     setActiveTab,
     splitIntoColumns,
     removeSplit,
-    closePanel, 
+    closePanel,
     moveTab,
     activateTabInPanel,
     reorderTabsInPanel,
@@ -595,7 +597,7 @@ export const useTabActions = () => {
     unsplitView: () => {
       removeSplit();
     },
-    
+
     closePanel: (panelId: string) => {
       closePanel(panelId);
     },

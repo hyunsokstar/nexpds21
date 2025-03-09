@@ -7,8 +7,9 @@ import { Resizable } from 're-resizable'
 
 const Footer = () => {
   const [isExpanded, setIsExpanded] = useState(true)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [minHeight, setMinHeight] = useState(32) // 기본 헤더 높이 (8px)
-  
+
   // 알림 메시지 샘플 데이터
   const notifications = [
     { id: 1, message: '230308 11시 10분 - SK Telecom 모바일 상품 지원 캠페인이 수정되었습니다.' },
@@ -68,10 +69,10 @@ const Footer = () => {
           <span className="mx-2">|</span>
           <span>버전: 1.0.0</span>
         </div>
-        
+
         <div className="flex items-center">
           {/* 드로워 토글 버튼 */}
-          <button 
+          <button
             className="flex items-center text-gray-400 hover:text-gray-600"
             onClick={() => setIsExpanded(!isExpanded)}
           >
@@ -84,11 +85,11 @@ const Footer = () => {
           </button>
         </div>
       </div>
-      
+
       {/* 푸터 본문 영역 - 알림 메시지 */}
       <AnimatePresence>
         {isExpanded && (
-          <motion.div 
+          <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -97,8 +98,8 @@ const Footer = () => {
           >
             <div className="space-y-0.5 border-t border-blue-100">
               {notifications.map((notification) => (
-                <div 
-                  key={notification.id} 
+                <div
+                  key={notification.id}
                   className="flex items-center py-1.5 px-2 text-xs text-gray-700 "
                 >
                   <span className="w-2 h-2 bg-blue-500 rounded-full mr-2 flex-shrink-0"></span>

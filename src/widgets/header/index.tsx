@@ -61,8 +61,8 @@ export function Header() {
                   key={item.id}
                   className={`
                     group flex flex-col items-center justify-between h-14 px-2 py-1.5 
-                    ${isOpen 
-                      ? 'border border-teal-200 bg-teal-50/50 rounded-sm' 
+                    ${isOpen
+                      ? 'border border-teal-200 bg-teal-50/50 rounded-sm'
                       : 'border border-dashed border-transparent hover:border-gray-300 rounded-sm'
                     }
                     ${isActive ? 'bg-teal-50' : ''}

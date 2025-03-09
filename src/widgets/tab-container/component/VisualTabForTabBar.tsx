@@ -23,9 +23,10 @@ const VisualTabForTabBar = ({
   onClick,
   onClose
 }: VisualTabProps) => {
-  
+
   const handleClose = (e: React.MouseEvent) => {
     e.stopPropagation();
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     onClose && onClose(id);
   };
 
@@ -34,18 +35,19 @@ const VisualTabForTabBar = ({
       className={cn(
         "flex items-center gap-1.5 px-3 py-1.5 mx-1 my-1 min-w-fit cursor-pointer rounded-sm text-sm transition-all",
         "border border-dashed",
-        isActive 
-          ? "bg-teal-50 border-teal-300 text-teal-700" 
+        isActive
+          ? "bg-teal-50 border-teal-300 text-teal-700"
           : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
       )}
       onClick={onClick}
     >
-      {Icon && (
+      {/* Render the icon only if it exists */}
+      {Icon ? (
         <Icon className={cn(
           "h-4 w-4",
           isActive ? "text-teal-600" : "text-gray-500"
         )} />
-      )}
+      ) : null}
       <span className={isActive ? "font-medium" : ""}>{name}</span>
       {closable && (
         <button
@@ -58,5 +60,5 @@ const VisualTabForTabBar = ({
     </div>
   );
 };
-    
+
 export default VisualTabForTabBar;

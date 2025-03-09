@@ -17,15 +17,15 @@ interface SidebarProps {
 
 type SidebarTab = 'campaign' | 'user' | 'group';
 
-const Sidebar = ({ 
-  className, 
-  defaultWidth = 256, 
-  minWidth = 220, 
-  maxWidth = 420 
+const Sidebar = ({
+  className,
+  defaultWidth = 256,
+  minWidth = 220,
+  maxWidth = 420
 }: SidebarProps) => {
   const pathname = usePathname()
   const [activeTab, setActiveTab] = useState<SidebarTab>('campaign')
-  
+
   // 각 탭별로 독립적인 확장 상태 관리
   const [campaignExpandedItems, setCampaignExpandedItems] = useState<Record<string, boolean>>({
     'nexus-cc': true,
@@ -33,19 +33,19 @@ const Sidebar = ({
     'lg-uplus': true,
     'kt': true
   })
-  
+
   const [userExpandedItems, setUserExpandedItems] = useState<Record<string, boolean>>({
     'user-management': true,
     'active-users': true,
     'user-performance': true
   })
-  
+
   const [groupExpandedItems, setGroupExpandedItems] = useState<Record<string, boolean>>({
     'campaign-groups': true,
     'telecom-groups': true,
     'finance-groups': true
   })
-  
+
   // 활성 탭에 따른 확장 상태 및 setter 가져오기
   const getExpandedItemsState = () => {
     switch (activeTab) {
@@ -66,9 +66,9 @@ const Sidebar = ({
         };
     }
   };
-  
+
   const { expandedItems, setExpandedItems } = getExpandedItemsState();
-  
+
   // 아이템 토글 함수 - 아이템 ID를 매개변수로 받음
   const toggleItem = (id: string) => {
     setExpandedItems(prev => ({
@@ -81,48 +81,49 @@ const Sidebar = ({
   useEffect(() => {
     // 재귀적으로 경로에 해당하는 모든 상위 항목 ID 찾기
     const findParentItemIds = (
-      items: any[], 
-      targetPath: string, 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      items: any[],
+      targetPath: string,
       parentIds: string[] = []
     ): string[] => {
       for (const item of items) {
         if (item.href === targetPath) {
           return parentIds;
         }
-        
+
         if (item.children && item.children.length > 0) {
           const foundIds = findParentItemIds(
-            item.children, 
-            targetPath, 
+            item.children,
+            targetPath,
             [...parentIds, item.id]
           );
-          
+
           if (foundIds.length > 0) {
             return foundIds;
           }
         }
       }
-      
+
       return [];
     };
-    
+
     // 현재 탭의 설정 가져오기
-    const currentConfig = 
+    const currentConfig =
       activeTab === 'campaign' ? campaignConfig :
-      activeTab === 'user' ? userConfig : 
-      groupConfig;
-    
+        activeTab === 'user' ? userConfig :
+          groupConfig;
+
     // 현재 경로에 해당하는 상위 항목 ID 찾기
     const parentIds = findParentItemIds(currentConfig, pathname);
-    
+
     // 찾은 ID들을 확장 상태에 추가
     if (parentIds.length > 0) {
       const newExpandedItems = { ...expandedItems };
-      
+
       parentIds.forEach(id => {
         newExpandedItems[id] = true;
       });
-      
+
       setExpandedItems(newExpandedItems);
     }
   }, [activeTab, pathname]);
@@ -152,7 +153,7 @@ const Sidebar = ({
   };
 
   const { config, title, icon } = getTabConfig();
-  
+
   // 리사이즈 핸들 스타일
   const resizeHandleStyles = {
     right: {
@@ -165,7 +166,7 @@ const Sidebar = ({
       zIndex: 1
     }
   };
-  
+
   return (
     <Resizable
       defaultSize={{
@@ -195,12 +196,12 @@ const Sidebar = ({
           {icon}
           <span className="text-sm font-medium ml-2">{title}</span>
         </div>
-        
+
         {/* 트리 메뉴 영역 - 스크롤 가능 */}
         <div className="flex-1 overflow-auto px-2 py-2">
           <nav className="space-y-1">
             {config.map((item) => (
-              <TreeItem 
+              <TreeItem
                 key={item.id}
                 item={item}
                 currentPath={pathname}
@@ -212,7 +213,7 @@ const Sidebar = ({
             ))}
           </nav>
         </div>
-        
+
         {/* 하단 세로 탭 */}
         <div className="border-t">
           <div className="flex flex-col divide-y">

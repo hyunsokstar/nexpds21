@@ -26,46 +26,46 @@
 //   const hasTabs = tabs.length > 0
 //   const isSplit = isSplitView()
 //   const panels = getPanels()
-  
+
 //   // 패널 레이아웃 상태
 //   const [isLayoutReady, setIsLayoutReady] = useState(false)
-  
+
 //   // 패널 참조 저장
 //   const panelRefs = useRef<(ImperativePanelHandle | null)[]>([])
 //   const containerRef = useRef<HTMLDivElement>(null)
-  
+
 //   // 이전 패널 수 추적
 //   const prevPanelCount = useRef<number>(0)
-  
+
 //   // 패널 최소 사이즈 계산 (%)
 //   const calculateMinSize = () => {
 //     if (!containerRef.current || !panels.length) return 10;
-    
+
 //     const containerWidth = containerRef.current.clientWidth;
 //     // 패널 최소 너비를 컨테이너 너비의 백분율로 변환
 //     const minSizePercent = (MIN_PANEL_WIDTH_PX / containerWidth) * 100;
-    
+
 //     // 백분율 값이 너무 크면(예: 작은 화면에서) 기본값 사용
 //     return Math.min(minSizePercent, 30);
 //   }
-  
+
 //   const [minPanelSize, setMinPanelSize] = useState<number>(10);
-  
+
 //   // 컨테이너 크기 변경 감지
 //   useEffect(() => {
 //     if (!containerRef.current) return;
-    
+
 //     const updateMinSize = () => {
 //       setMinPanelSize(calculateMinSize());
 //     };
-    
+
 //     // 초기 계산
 //     updateMinSize();
-    
+
 //     // 리사이즈 이벤트 리스너
 //     const resizeObserver = new ResizeObserver(updateMinSize);
 //     resizeObserver.observe(containerRef.current);
-    
+
 //     return () => {
 //       if (containerRef.current) {
 //         resizeObserver.unobserve(containerRef.current);
@@ -73,7 +73,7 @@
 //       resizeObserver.disconnect();
 //     };
 //   }, [panels.length]);
-  
+
 //   // 최초 로딩 시 레이아웃 설정
 //   useEffect(() => {
 //     // 패널 레이아웃 설정 준비
@@ -81,13 +81,13 @@
 //       // 패널 수가 변경된 경우
 //       if (prevPanelCount.current !== panels.length) {
 //         prevPanelCount.current = panels.length;
-        
+
 //         // 기존에 저장된 레이아웃 확인
 //         try {
 //           const savedLayout = localStorage.getItem(LOCAL_STORAGE_KEY);
 //           if (savedLayout) {
 //             const parsedLayout = JSON.parse(savedLayout);
-            
+
 //             // 패널 수가 일치할 경우에만 저장된 레이아웃 적용
 //             if (parsedLayout.panelCount === panels.length) {
 //               // 각 패널에 크기 적용
@@ -106,17 +106,17 @@
 //         } catch (error) {
 //           console.error('Failed to load panel layout:', error);
 //         }
-        
+
 //         // 새 레이아웃 설정
 //         setIsLayoutReady(true);
 //       }
 //     }
 //   }, [isSplit, panels.length]);
-  
+
 //   // 패널 크기 변경시 저장
 //   const handleLayout = (sizes: number[]) => {
 //     if (!isLayoutReady) return;
-    
+
 //     // 로컬 스토리지에 레이아웃 저장
 //     try {
 //       localStorage.setItem(
@@ -130,12 +130,12 @@
 //       console.error('Failed to save panel layout:', error);
 //     }
 //   };
-  
+
 //   // 패널 초기 크기 계산
 //   const getInitialPanelSize = (index: number) => {
 //     return 100 / panels.length;
 //   };
-  
+
 //   // 분할 모드가 아닐 때는 단일 컨테이너 표시
 //   if (!isSplit) {
 //     return (
@@ -145,7 +145,7 @@
 //       </div>
 //     );
 //   }
-  
+
 //   // 분할 모드일 때는 리사이즈 가능한 패널 그룹 표시
 //   return (
 //     <div ref={containerRef} className={`h-full ${className}`}>
@@ -162,7 +162,7 @@
 //                 className="z-10" // 겹침 방지
 //               />
 //             )}
-            
+
 //             <Panel 
 //               id={panel.id}
 //               defaultSize={getInitialPanelSize(index)}
@@ -217,43 +217,43 @@ const TabContainer = ({ className }: TabContainerProps) => {
   const hasTabs = tabs.length > 0
   const isSplit = isSplitView()
   const panels = getPanels()
-  
+
   // 패널 레이아웃 상태
   const [isLayoutReady, setIsLayoutReady] = useState(false)
-  
+
   // 패널 참조 저장
   const panelRefs = useRef<(ImperativePanelHandle | null)[]>([])
   const containerRef = useRef<HTMLDivElement>(null)
-  
+
   // 이전 패널 수 추적
   const prevPanelCount = useRef<number>(0)
-  
+
   // 패널 최소 사이즈 계산 함수
   const calculateMinSize = () => {
     if (!containerRef.current || panels.length === 0) return 10;
-    
+
     const containerWidth = containerRef.current.clientWidth;
     const minSizePercent = (MIN_PANEL_WIDTH_PX / containerWidth) * 100;
     return Math.min(minSizePercent, 30);
   }
-  
+
   const [minPanelSize, setMinPanelSize] = useState<number>(10);
-  
+
   // 컨테이너 크기 변경 감지
   useEffect(() => {
     if (!containerRef.current) return;
-    
+
     const updateMinSize = () => {
       setMinPanelSize(calculateMinSize());
     };
-    
+
     // 초기 계산
     updateMinSize();
-    
+
     // 리사이즈 이벤트 리스너
     const resizeObserver = new ResizeObserver(updateMinSize);
     resizeObserver.observe(containerRef.current);
-    
+
     return () => {
       if (containerRef.current) {
         resizeObserver.unobserve(containerRef.current);
@@ -261,13 +261,13 @@ const TabContainer = ({ className }: TabContainerProps) => {
       resizeObserver.disconnect();
     };
   }, [panels.length]);
-  
+
   // 최초 로딩 시 레이아웃 설정
   useEffect(() => {
     if (isSplit && panels.length > 0) {
       if (prevPanelCount.current !== panels.length) {
         prevPanelCount.current = panels.length;
-        
+
         try {
           const savedLayout = localStorage.getItem(LOCAL_STORAGE_KEY);
           if (savedLayout) {
@@ -288,19 +288,19 @@ const TabContainer = ({ className }: TabContainerProps) => {
         } catch (error) {
           console.error('Failed to load panel layout:', error);
         }
-        
+
         setIsLayoutReady(true);
       }
     }
   }, [isSplit, panels.length]);
-  
+
   // 패널 크기 변경시 저장
   const handleLayout = (sizes: number[]) => {
     if (!isLayoutReady) return;
-    
+
     try {
       localStorage.setItem(
-        LOCAL_STORAGE_KEY, 
+        LOCAL_STORAGE_KEY,
         JSON.stringify({
           panelCount: panels.length,
           sizes
@@ -310,12 +310,13 @@ const TabContainer = ({ className }: TabContainerProps) => {
       console.error('Failed to save panel layout:', error);
     }
   }
-  
+
   // 패널 초기 크기 계산
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const getInitialPanelSize = (index: number) => {
     return 100 / panels.length;
   }
-  
+
   if (!isSplit) {
     return (
       <div className={`flex flex-col flex-1 ${className}`}>
@@ -324,11 +325,11 @@ const TabContainer = ({ className }: TabContainerProps) => {
       </div>
     )
   }
-  
+
   return (
     <div ref={containerRef} className={`h-full ${className}`}>
-      <PanelGroup 
-        direction="horizontal" 
+      <PanelGroup
+        direction="horizontal"
         className="h-full"
         onLayout={handleLayout}
       >
@@ -337,8 +338,8 @@ const TabContainer = ({ className }: TabContainerProps) => {
             {index > 0 && (
               <ResizeHandle className="z-10" />
             )}
-            
-            <Panel 
+
+            <Panel
               id={panel.id}
               defaultSize={getInitialPanelSize(index)}
               minSize={minPanelSize}

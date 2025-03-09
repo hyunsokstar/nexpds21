@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState } from 'react'
-import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Phone, Users, ListTree } from 'lucide-react'
 import { campaignConfig, groupConfig, userConfig } from './config/sidebar-menu-items'
@@ -23,7 +22,6 @@ const Sidebar = ({
   minWidth = 220,
   maxWidth = 420
 }: SidebarProps) => {
-  const pathname = usePathname()
   const [activeTab, setActiveTab] = useState<SidebarTab>('campaign')
 
   // 각 탭별로 독립적인 확장 상태 관리
@@ -142,7 +140,6 @@ const Sidebar = ({
         <div className="flex-1 overflow-auto px-2 py-2">
           <TreeMenusForSideBar
             config={config}
-            currentPath={pathname}
             expandedItems={expandedItems}
             setExpandedItems={setExpandedItems}
           />

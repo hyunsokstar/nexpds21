@@ -23,22 +23,21 @@ export default function MainLayout({
         <Sidebar />
 
         <div className="flex flex-1 flex-col overflow-hidden">
-          {/* 탭 컨테이너 */}
-          <div className="flex-1 overflow-auto flex flex-col">
-            <div className="flex-1 flex flex-col overflow-hidden">
-              <TabContainer />
-            </div>
+          {/* 탭 컨테이너와 메인 콘텐츠 영역 - 스크롤 가능 */}
+          <div className="flex-1 overflow-auto">
+            {/* 탭 영역 */}
+            <TabContainer />
             
             {/* 탭이 없을 때 기본 콘텐츠 표시 */}
             {!hasTabs && (
-              <main className="flex-1 overflow-auto p-4">
+              <main className="p-4">
                 {children}
               </main>
             )}
-            
-            {/* Footer */}
-            <Footer />
           </div>
+          
+          {/* Footer - 메인 컨텐츠 영역과 분리 */}
+          <Footer />
         </div>
       </div>
     </div>

@@ -3,9 +3,11 @@
 import React, { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Resizable } from 're-resizable'
 
 const Footer = () => {
   const [isExpanded, setIsExpanded] = useState(true)
+  const [minHeight, setMinHeight] = useState(32) // 기본 헤더 높이 (8px)
   
   // 알림 메시지 샘플 데이터
   const notifications = [
@@ -14,8 +16,51 @@ const Footer = () => {
     { id: 3, message: '230308 09시 30분 - KT 해지 방어 캠페인 성과 리포트가 업데이트 되었습니다.' }
   ]
 
+  // 리사이징 시작시 확장 상태로 만들기
+  const handleResizeStart = () => {
+    if (!isExpanded) {
+      setIsExpanded(true)
+    }
+  }
+
+  // 리사이즈 핸들 스타일
+  const resizeHandleStyles = {
+    top: {
+      position: 'absolute' as const,
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '3px',
+      cursor: 'row-resize',
+      zIndex: 1
+    }
+  }
+
   return (
-    <div className="border-t bg-white shadow-md w-full">
+    <Resizable
+      defaultSize={{
+        width: '100%',
+        height: isExpanded ? 'auto' : minHeight,
+      }}
+      minHeight={minHeight}
+      maxHeight={300}
+      enable={{
+        top: true,
+        right: false,
+        bottom: false,
+        left: false,
+        topRight: false,
+        bottomRight: false,
+        bottomLeft: false,
+        topLeft: false
+      }}
+      handleStyles={resizeHandleStyles}
+      handleClasses={{
+        top: 'hover:bg-blue-300 active:bg-blue-400 transition-colors'
+      }}
+      onResizeStart={handleResizeStart}
+      className="border-t bg-white shadow-md w-full relative"
+    >
       {/* 푸터 헤더 영역 */}
       <div className="flex h-8 items-center justify-between px-2 text-xs text-gray-500 bg-gray-50">
         <div className="flex items-center">
@@ -64,7 +109,7 @@ const Footer = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </Resizable>
   )
 }
 
